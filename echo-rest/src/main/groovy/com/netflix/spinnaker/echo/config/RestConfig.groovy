@@ -80,6 +80,17 @@ class RestConfig {
         restAdapterBuilder.setRequestInterceptor(authInterceptor)
       }
 
+      endpoint.headers.each { Map.Entry<String,String> header ->
+        RequestInterceptor headerInterceptor = new RequestInterceptor() {
+          @Override
+          public void intercept(RequestInterceptor.RequestFacade request) {
+            request.addHeader(header.getKey(), header.getValue())
+          }
+        }
+
+        restAdapterBuilder.setRequestInterceptor(headerInterceptor)
+      }
+
       restUrls.services.add(
         [
           client: restAdapterBuilder.build().create(RestService),
