@@ -33,7 +33,6 @@ import retrofit.RestAdapter.LogLevel
 import retrofit.client.Client
 import retrofit.client.OkClient
 import retrofit.converter.JacksonConverter
-import java.io.File
 
 /**
  * Rest endpoint configuration
