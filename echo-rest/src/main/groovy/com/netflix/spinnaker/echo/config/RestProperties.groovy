@@ -42,6 +42,7 @@ class RestProperties {
     String username
     String password
     Map<String, String> headers
+    String headersFile
     Boolean flatten = false
 
   }

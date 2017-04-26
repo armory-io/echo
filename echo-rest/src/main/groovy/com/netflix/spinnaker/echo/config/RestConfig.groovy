@@ -33,6 +33,7 @@ import retrofit.RestAdapter.LogLevel
 import retrofit.client.Client
 import retrofit.client.OkClient
 import retrofit.converter.JacksonConverter
+import java.io.File
 
 /**
  * Rest endpoint configuration
@@ -68,26 +69,36 @@ class RestConfig {
         .setLogLevel(retrofitLogLevel)
         .setConverter(new JacksonConverter())
 
-      if (endpoint.username && endpoint.password) {
-        RequestInterceptor authInterceptor = new RequestInterceptor() {
-          @Override
-          public void intercept(RequestInterceptor.RequestFacade request) {
-            String auth = "Basic " + Base64.encodeBase64String("${endpoint.username}:${endpoint.password}".getBytes())
-            request.addHeader("Authorization", auth)
-          }
-        }
 
-        restAdapterBuilder.setRequestInterceptor(authInterceptor)
+      Map<String, String> headers = new HashMap<>()
+
+      if (endpoint.username && endpoint.password) {
+        String auth = "Basic " + Base64.encodeBase64String("${endpoint.username}:${endpoint.password}".getBytes())
+        headers["Authorization"] = auth
       }
 
-      endpoint.headers.each { Map.Entry<String,String> header ->
+      if (endpoint.headers) {
+        headers += endpoint.headers
+      }
+
+      if (endpoint.headersFile) {
+        new File(endpoint.headersFile).eachLine { line ->
+          def pair = line.split(":")
+          if (pair.length == 2) {
+            headers[pair[0]]= pair[1].trim()
+          }
+        }
+      }
+
+      if (headers) {
         RequestInterceptor headerInterceptor = new RequestInterceptor() {
           @Override
           public void intercept(RequestInterceptor.RequestFacade request) {
-            request.addHeader(header.getKey(), header.getValue())
+            headers.each { k, v ->
+              request.addHeader(k, v)
+            }
           }
         }
-
         restAdapterBuilder.setRequestInterceptor(headerInterceptor)
       }
 
