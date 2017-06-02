@@ -16,7 +16,9 @@
 
 package com.netflix.spinnaker.echo.config
 
+import com.netflix.spinnaker.echo.events.RestClientBuilder
 import com.netflix.spinnaker.echo.rest.RestService
+import com.squareup.okhttp.OkHttpClient
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.codec.binary.Base64
@@ -93,7 +95,7 @@ class RestConfig {
   }
 
   @Bean
-  RestUrls restServices(RestProperties restProperties, Client retrofitClient, LogLevel retrofitLogLevel, RequestInterceptorAttacher requestInterceptorAttacher, HeadersFromFile headersFromFile) {
+  RestUrls restServices(RestProperties restProperties, RestClientBuilder clientBuilder, LogLevel retrofitLogLevel, RequestInterceptorAttacher requestInterceptorAttacher, HeadersFromFile headersFromFile) {
 
     RestUrls restUrls = new RestUrls()
 
@@ -102,7 +104,7 @@ class RestConfig {
     restProperties.endpoints.each { RestProperties.RestEndpointConfiguration endpoint ->
       RestAdapter.Builder restAdapterBuilder = new RestAdapter.Builder()
         .setEndpoint(newFixedEndpoint(endpoint.url as String))
-        .setClient(retrofitClient)
+        .setClient(clientBuilder.buildClient(endpoint.insecureClient))
         .setLogLevel(retrofitLogLevel)
         .setConverter(new JacksonConverter())
 
