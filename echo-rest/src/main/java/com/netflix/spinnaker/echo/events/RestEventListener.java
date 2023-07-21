@@ -28,12 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /** Event listener for echo events */
 @Component
 @ConditionalOnProperty("rest.enabled")
+@ConditionalOnMissingBean
 class RestEventListener implements EventListener {
 
   private static final Logger log = LoggerFactory.getLogger(RestEventListener.class);
