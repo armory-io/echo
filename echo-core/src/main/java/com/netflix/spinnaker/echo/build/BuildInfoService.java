@@ -94,10 +94,11 @@ public class BuildInfoService {
     String propertyFileFinal = propertyFile;
     if (StringUtils.isNoneEmpty(master, job, propertyFile)) {
       return retry(
-        () ->
-          igorConfigurationProperties.isJobNameAsQueryParameter()
-            ? igorService.getPropertyFileWithJobQueryParameter(buildNumber,propertyFileFinal, master, job)
-            : igorService.getPropertyFile(buildNumber,propertyFileFinal, master, job));
+          () ->
+              igorConfigurationProperties.isJobNameAsQueryParameter()
+                  ? igorService.getPropertyFileWithJobQueryParameter(
+                      buildNumber, propertyFileFinal, master, job)
+                  : igorService.getPropertyFile(buildNumber, propertyFileFinal, master, job));
     }
     return Collections.emptyMap();
   }
@@ -108,10 +109,11 @@ public class BuildInfoService {
     int buildNumber = event.getBuildNumber();
     if (StringUtils.isNoneEmpty(master, job, propertyFile)) {
       return retry(
-        () ->
-          igorConfigurationProperties.isJobNameAsQueryParameter()
-            ? igorService.getArtifactsWithJobQueryParameter(buildNumber, propertyFile, master, job)
-            : igorService.getArtifacts(buildNumber, propertyFile, master, job));
+          () ->
+              igorConfigurationProperties.isJobNameAsQueryParameter()
+                  ? igorService.getArtifactsWithJobQueryParameter(
+                      buildNumber, propertyFile, master, job)
+                  : igorService.getArtifacts(buildNumber, propertyFile, master, job));
     }
     return Collections.emptyList();
   }

@@ -46,10 +46,10 @@ public interface IgorService {
 
   @GET("/builds/properties/{buildNumber}/{fileName}/{master}")
   Map<String, Object> getPropertyFileWithJobQueryParameter(
-    @Path("buildNumber") Integer buildNumber,
-    @Path("fileName") String fileName,
-    @Path("master") String master,
-    @Query(value = "job") String job);
+      @Path("buildNumber") Integer buildNumber,
+      @Path("fileName") String fileName,
+      @Path("master") String master,
+      @Query(value = "job") String job);
 
   @GET("/builds/artifacts/{buildNumber}/{master}/{job}")
   List<Artifact> getArtifacts(
@@ -60,10 +60,10 @@ public interface IgorService {
 
   @GET("/builds/artifacts/{buildNumber}/{master}")
   List<Artifact> getArtifactsWithJobQueryParameter(
-    @Path("buildNumber") Integer buildNumber,
-    @Query("propertyFile") String propertyFile,
-    @Path("master") String master,
-    @Query(value = "job") String job);
+      @Path("buildNumber") Integer buildNumber,
+      @Query("propertyFile") String propertyFile,
+      @Path("master") String master,
+      @Query(value = "job") String job);
 
   @GET("/artifacts/{provider}/{packageName}")
   List<String> getVersions(
