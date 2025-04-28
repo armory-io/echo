@@ -85,7 +85,8 @@ public class Trigger {
     DRYRUN("dryrun"),
     PIPELINE("pipeline"),
     PLUGIN("plugin"),
-    HELM("helm");
+    HELM("helm"),
+    HELM_DOCKER("helm-docker");
 
     private final String type;
 
