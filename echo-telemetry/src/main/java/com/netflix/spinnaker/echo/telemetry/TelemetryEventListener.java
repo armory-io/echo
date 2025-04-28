@@ -20,16 +20,17 @@ import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.util.JsonFormat;
 import com.netflix.spinnaker.echo.api.events.Event;
 import com.netflix.spinnaker.echo.api.events.EventListener;
+import com.netflix.spinnaker.kork.retrofit.Retrofit2SyncCall;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import retrofit.mime.TypedString;
 
 @Slf4j
 @Component
@@ -103,7 +104,11 @@ public class TelemetryEventListener implements EventListener {
 
       registry
           .circuitBreaker(TELEMETRY_REGISTRY_NAME)
-          .executeCallable(() -> telemetryService.log(new TypedJsonString(jsonContent)));
+          .executeCallable(
+              () ->
+                  Retrofit2SyncCall.execute(
+                      telemetryService.log(
+                          RequestBody.create(jsonContent, MediaType.parse("application/json")))));
       log.debug("Telemetry sent!");
     } catch (CallNotPermittedException cnpe) {
       log.debug(
@@ -112,22 +117,6 @@ public class TelemetryEventListener implements EventListener {
           cnpe.getMessage());
     } catch (Exception e) {
       log.debug("Could not send Telemetry event {}", event, e);
-    }
-  }
-
-  static class TypedJsonString extends TypedString {
-    TypedJsonString(String body) {
-      super(body);
-    }
-
-    @Override
-    public String mimeType() {
-      return "application/json";
-    }
-
-    @Override
-    public String toString() {
-      return new String(getBytes(), StandardCharsets.UTF_8);
     }
   }
 }

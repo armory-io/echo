@@ -19,22 +19,19 @@ dependencies {
   implementation project(':echo-model')
   implementation project(':echo-pipelinetriggers')
 
-  implementation "com.squareup.retrofit:retrofit"
-  implementation "com.squareup.retrofit:converter-jackson"
-  implementation "com.squareup.okhttp:okhttp"
-  implementation "com.squareup.okhttp:okhttp-urlconnection"
-  implementation "com.squareup.okhttp:okhttp-apache"
-
   implementation "com.netflix.spectator:spectator-api"
   implementation "io.spinnaker.kork:kork-artifacts"
+  implementation "io.spinnaker.kork:kork-retrofit"
   implementation "io.spinnaker.kork:kork-sql"
 
   if (!rootProject.hasProperty("excludeSqlDrivers")) {
-    runtimeOnly "mysql:mysql-connector-java"
+    runtimeOnly "com.mysql:mysql-connector-j"
   }
 
   implementation "org.springframework:spring-context-support"
   implementation ("org.quartz-scheduler:quartz") {
     exclude group: 'com.zaxxer', module: 'HikariCP-java7'
   }
+
+  testImplementation "com.squareup.retrofit2:retrofit-mock"
 }

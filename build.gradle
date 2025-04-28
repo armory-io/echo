@@ -46,21 +46,16 @@ subprojects {
      useJUnitPlatform()
     }
 
-    tasks.withType(JavaCompile).configureEach {
-      javaCompiler = javaToolchains.compilerFor {
-        languageVersion = JavaLanguageVersion.of(11)
-      }
-    }
-    tasks.withType(Test).configureEach {
-      javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(17)
-      }
-    }
-
     tasks.withType(JavaExec) {
       if (System.getProperty('DEBUG', 'false') == 'true') {
         jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8189'
       }
+    }
+
+    // This is required for some SpEL expressions to evaluate properly with java
+    // 17.  It works with java 11 as well, but isn't required there.
+    tasks.withType(Test).configureEach {
+      jvmArgs += '--add-opens=java.base/java.util=ALL-UNNAMED'
     }
   }
 
@@ -78,7 +73,7 @@ subprojects {
       annotationProcessor "org.projectlombok:lombok"
       testAnnotationProcessor "org.projectlombok:lombok"
 
-      implementation "org.codehaus.groovy:groovy"
+      implementation "org.apache.groovy:groovy"
       implementation "com.github.ben-manes.caffeine:guava"
       implementation "com.netflix.spectator:spectator-api"
       implementation "org.slf4j:slf4j-api"

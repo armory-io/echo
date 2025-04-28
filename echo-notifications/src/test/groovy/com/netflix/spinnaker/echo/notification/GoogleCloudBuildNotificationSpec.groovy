@@ -23,6 +23,8 @@ import com.netflix.spinnaker.echo.jackson.EchoObjectMapper
 import com.netflix.spinnaker.echo.model.pubsub.MessageDescription
 import com.netflix.spinnaker.echo.services.IgorService
 import com.netflix.spinnaker.kork.core.RetrySupport
+import okhttp3.RequestBody
+import retrofit2.mock.Calls
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -60,7 +62,7 @@ class GoogleCloudBuildNotificationSpec extends Specification {
     notificationAgent.processEvent(event)
 
     then:
-    1 * igorService.updateBuildStatus(ACCOUNT_NAME, BUILD_ID, BUILD_STATUS, { it -> it.in().text == PAYLOAD })
+    1 * igorService.updateBuildStatus(ACCOUNT_NAME, BUILD_ID, BUILD_STATUS, { it -> itToString(it) == PAYLOAD }) >> Calls.response(null)
     0 * igorService._
   }
 
@@ -72,8 +74,8 @@ class GoogleCloudBuildNotificationSpec extends Specification {
     notificationAgent.processEvent(event)
 
     then:
-    2 * igorService.updateBuildStatus(ACCOUNT_NAME, BUILD_ID, BUILD_STATUS, { it -> it.in().text == PAYLOAD }) >>
-      { throw new RuntimeException() } >> { }
+    2 * igorService.updateBuildStatus(ACCOUNT_NAME, BUILD_ID, BUILD_STATUS, { it -> itToString(it) == PAYLOAD }) >>
+      { throw new RuntimeException() } >> { Calls.response(null) }
     0 * igorService._
   }
 
@@ -96,5 +98,11 @@ class GoogleCloudBuildNotificationSpec extends Specification {
     event.setContent(content)
     event.setDetails(details)
     return event
+  }
+
+  private static String itToString(RequestBody body) {
+    def buffer = new okio.Buffer()
+    body.writeTo(buffer)
+    return buffer.readUtf8()
   }
 }

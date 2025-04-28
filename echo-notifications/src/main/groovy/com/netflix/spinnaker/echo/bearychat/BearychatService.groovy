@@ -16,22 +16,24 @@
 
 package com.netflix.spinnaker.echo.bearychat
 
-import retrofit.http.Body
-import retrofit.http.GET
-import retrofit.http.POST
-import retrofit.client.Response
-import retrofit.http.Query
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface BearychatService {
 
-  @GET("/v1/user.list")
-  List<BearychatUserInfo> getUserList(@Query("token") String token)
+  @GET("v1/user.list")
+  Call<List<BearychatUserInfo>> getUserList(@Query("token") String token)
 
-  @POST("/v1/p2p.create")
-  CreateP2PChannelResponse createp2pchannel(@Query("token") String token,
+  @POST("v1/p2p.create")
+  Call<CreateP2PChannelResponse> createp2pchannel(@Query("token") String token,
                                             @Body CreateP2PChannelPara para)
 
-  @POST("/v1/message.create")
-  Response sendMessage(@Query("token") String token,
-                       @Body SendMessagePara para)
+  @POST("v1/message.create")
+  Call<ResponseBody> sendMessage(@Query("token") String token,
+                                           @Body SendMessagePara para)
 }

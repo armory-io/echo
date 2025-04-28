@@ -46,6 +46,13 @@ public abstract class AbstractEventNotificationAgent implements EventListener {
           .put(STAGE, ImmutableMap.of("type", STAGE, "link", "stage"))
           .build();
 
+  private static final Map<String, String> MANUAL_JUDGMENT_CONDITIONS =
+      ImmutableMap.<String, String>builder()
+          .put(ManualJudgmentCondition.MANUAL_JUDGMENT.getName(), StageStatus.STARTING.getName())
+          .put(ManualJudgmentCondition.CONTINUE.getName(), StageStatus.COMPLETE.getName())
+          .put(ManualJudgmentCondition.STOP.getName(), StageStatus.FAILED.getName())
+          .build();
+
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   protected ObjectMapper mapper = EchoObjectMapper.getInstance();
@@ -99,6 +106,21 @@ public abstract class AbstractEventNotificationAgent implements EventListener {
 
     if (STAGE.equals(configType) && contentKeyAsBoolean(event, "canceled")) {
       return;
+    }
+
+    if (STAGE.equals(configType)) {
+      Object when = event.getContent().get("when");
+      if (when != null) {
+        if (when instanceof String) {
+          if (!isManualJudgmentMatchStringCase((String) when, status)) {
+            return;
+          }
+        } else if (when instanceof Collection) {
+          if (!isManualJudgmentMatchCollectionCase((Collection<String>) when, status)) {
+            return;
+          }
+        }
+      }
     }
 
     // TODO(lpollo): why do we have a 'CANCELED' status and a canceled property, which are prime for
@@ -182,9 +204,11 @@ public abstract class AbstractEventNotificationAgent implements EventListener {
       if (when != null) {
         String requiredWhen = format("%s.%s", configType, status);
         if (when instanceof String) {
-          return ((String) when).contains(requiredWhen);
+          return isManualJudgmentMatchStringCase((String) when, status)
+              || ((String) when).contains(requiredWhen);
         } else if (when instanceof Collection) {
-          return ((Collection<String>) when).contains(requiredWhen);
+          return isManualJudgmentMatchCollectionCase((Collection<String>) when, status)
+              || ((Collection<String>) when).contains(requiredWhen);
         }
       }
     }
@@ -197,6 +221,67 @@ public abstract class AbstractEventNotificationAgent implements EventListener {
       return false;
     }
     return Boolean.parseBoolean(value.toString());
+  }
+
+  enum StageStatus {
+    COMPLETE("complete"),
+    STARTING("starting"),
+    FAILED("failed");
+
+    final String name;
+
+    StageStatus(String name) {
+      this.name = name;
+    }
+
+    String getName() {
+      return this.name;
+    }
+  }
+
+  enum ManualJudgmentCondition {
+    CONTINUE("manualJudgmentContinue"),
+    STOP("manualJudgmentStop"),
+    MANUAL_JUDGMENT("manualJudgment");
+
+    final String name;
+
+    ManualJudgmentCondition(String name) {
+      this.name = name;
+    }
+
+    String getName() {
+      return this.name;
+    }
+  }
+
+  private static boolean isManualJudgmentMatchStringCase(String when, String status) {
+    // For Manual Judgment stages, only send specialized notifications, not standard stage ones
+    // This prevents duplicate notifications between standard stage and manual judgment events
+    if (ManualJudgmentCondition.MANUAL_JUDGMENT.getName().equals(when)
+        || ManualJudgmentCondition.CONTINUE.getName().equals(when)
+        || ManualJudgmentCondition.STOP.getName().equals(when)) {
+      return false;
+    }
+    return status.equals(MANUAL_JUDGMENT_CONDITIONS.get(when));
+  }
+
+  private static boolean isManualJudgmentMatchCollectionCase(
+      Collection<String> when, String status) {
+    // For Manual Judgment stages, only send specialized notifications, not standard stage ones
+    // This prevents duplicate notifications between standard stage and manual judgment events
+    if (when.contains(ManualJudgmentCondition.MANUAL_JUDGMENT.getName())
+        || when.contains(ManualJudgmentCondition.CONTINUE.getName())
+        || when.contains(ManualJudgmentCondition.STOP.getName())) {
+      return false;
+    }
+
+    for (String condition : when) {
+      if (status.equals(MANUAL_JUDGMENT_CONDITIONS.get(condition))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static boolean isExecution(String type) {
