@@ -1,0 +1,39 @@
+echo-web/src/main/java/com/netflix/spinnaker/config/WebConfigOverrides.java
+  human 1-43
+---
+{
+  "attestations": [
+    {
+      "entries": [
+        {
+          "accepted_lines": 43,
+          "added_lines": 43,
+          "deleted_lines": 0,
+          "hash": "human",
+          "lines": "1-43",
+          "overridden_lines": 0
+        }
+      ],
+      "file": "echo-web/src/main/java/com/netflix/spinnaker/config/WebConfigOverrides.java"
+    }
+  ],
+  "base_commit_sha": "900383437949085af3c8819e17a8196b419a7fb2",
+  "branch": "fixcve-2026-22732",
+  "commit_sha": "ff4ba1e49868ac37eae474b262ca51dfc53843d8",
+  "commit_time": "2026-05-07T16:29:12-05:00",
+  "commit_type": "direct_commit",
+  "git_ai_version": "1.4.2",
+  "prompts": {
+    "human": {
+      "accepted_lines": 43,
+      "agent_id": null,
+      "human_author": "Jason McIntosh <jason.mcintosh@harness.io>",
+      "messages": [],
+      "overriden_lines": 0,
+      "total_additions": 43,
+      "total_deletions": 0
+    }
+  },
+  "repo": "git@github.com:armory-io/echo.git",
+  "schema_version": "authorship/3.0.0"
+}
